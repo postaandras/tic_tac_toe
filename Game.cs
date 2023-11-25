@@ -10,6 +10,8 @@ namespace tic_tac_toe
         private Team[,] board;
         private Team Player;
         private bool GameOver;
+        private int NumRounds;
+        private Team[] WinFields;
 
         public bool getGameOver()
         {
@@ -21,6 +23,7 @@ namespace tic_tac_toe
             board = new Team[3, 3];
             Player = Team.X;
             GameOver = false;
+            NumRounds = 0;
         }
         public void printBoard()
         {
@@ -42,15 +45,68 @@ namespace tic_tac_toe
             }
         }
 
+
+        public void printBoard(ConsoleColor color)
+        {
+            Console.WriteLine("-------------");
+            for (int i = 2; i >= 0; i--)
+            {
+                
+                Console.Write("| ");
+                for (int j = 0; j < 3; j++)
+                {
+                    if (board[j, i] != Team.None)
+                    {
+                        Console.ForegroundColor = color;
+                        Console.Write($"{board[j, i]}");
+                    }
+                    else Console.Write(" ");
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" | ");
+
+                }
+                Console.WriteLine();
+                Console.WriteLine("-------------");
+            }
+        }
+
+        public void printBoard(ConsoleColor Xcolor, ConsoleColor OColor)
+        {
+            Console.WriteLine("-------------");
+            for (int i = 2; i >= 0; i--)
+            {
+                Console.Write("| ");
+                for (int j = 0; j < 3; j++)
+                {
+                    switch (board[j,i ])
+                    {
+                        case Team.None:
+                            Console.Write(" ");
+                            break;
+                        case Team.X:
+                            Console.ForegroundColor = Xcolor;
+                            Console.Write($"{board[j, i]}");
+                            
+                            break;
+                        case Team.O:
+                            Console.ForegroundColor = OColor;
+                            Console.Write($"{board[j, i]}");
+                            break;
+                    }
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" | ");
+                }
+                Console.WriteLine();
+                Console.WriteLine("-------------");
+            }
+        }
+
         public void messager()
         {
-            //hát hogy ez csinálja az egész üzenetezést. JAja, és akkor majd ez hív másokat
-            //ilyen gyűjtő
             printBoard();
             writeCurrentPlayer();
             makeMove();
-
-            
         }
     
         private void writeCurrentPlayer()
@@ -96,8 +152,16 @@ namespace tic_tac_toe
             }
             if(winCondition(x-1, y-1))
             {
-                Console.WriteLine("Game over! The winner is: " + Player);
                 GameOver = true;
+                return;
+            }
+
+            NumRounds++;
+
+            if (NumRounds == 9)
+            {
+                GameOver = true;
+                Player = Team.None;
                 return;
             }
             
@@ -128,7 +192,7 @@ namespace tic_tac_toe
                     return false;
                 }
             }
-            
+            WinFields = row;
             return true;
         }
 
@@ -152,11 +216,28 @@ namespace tic_tac_toe
             {
                 if (diag[i] != Player)
                 {
-
                     return false;
                 }
             }
+
             return true;
+        }
+
+        public void GameEnder()
+        {
+            if(Player == Team.None)
+            {
+                Console.WriteLine("Game over! It's a tie");
+                printBoard(ConsoleColor.Yellow);
+
+            }
+            else
+            {
+                Console.WriteLine("Game over! The winner is: " + Player);
+            }
+            printBoard(ConsoleColor.Green, ConsoleColor.Red);
+            return;
+
         }
     }
 
