@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Security.Cryptography.X509Certificates;
+using System.Xml.Serialization;
 
 namespace tic_tac_toe
 {
     public class Game
     {
 
-        private Team[,] board;
+        private Field[,] board;
         private Team Player;
         private bool GameOver;
         private int NumRounds;
-        private Team[] WinFields;
+        
+        private const ConsoleColor baseColor = ConsoleColor.White;
+        private const ConsoleColor xColor = ConsoleColor.Green;
+        private const ConsoleColor xWinColor = ConsoleColor.DarkGreen;
+        private const ConsoleColor oColor = ConsoleColor.Red;
+        private const ConsoleColor oWinColor = ConsoleColor.Red;
+        private const ConsoleColor tieColor = ConsoleColor.Yellow;
 
         public bool getGameOver()
         {
@@ -20,11 +27,29 @@ namespace tic_tac_toe
 
         public Game()
         {
-            board = new Team[3, 3];
+            board = new Field[3, 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    board[i,j] = new Field();
+                }
+            }
             Player = Team.X;
             GameOver = false;
             NumRounds = 0;
         }
+
+        void resetColor()
+        {
+            Console.ForegroundColor = baseColor;
+        }
+
+        void setColor(ConsoleColor color)
+        {
+            Console.ForegroundColor= color;
+        }
+
         public void printBoard()
         {
             Console.WriteLine("-------------");
@@ -33,11 +58,16 @@ namespace tic_tac_toe
                 Console.Write("| ");
                 for (int j = 0; j < 3; j++)
                 {
-                    if (board[j, i] != Team.None)
+                    
+                    if (board[j, i].team != Team.None)
                     {
-                        Console.Write($"{board[j, i]} | ");
+                        setColor(board[j,i].color);
+                        Console.Write($"{board[j, i].team}");
                     }
-                    else Console.Write("  | ");
+                    else Console.Write(" ");
+
+                    resetColor();
+                    Console.Write(" | ");
                     
                 }
                 Console.WriteLine();
@@ -45,62 +75,6 @@ namespace tic_tac_toe
             }
         }
 
-
-        public void printBoard(ConsoleColor color)
-        {
-            Console.WriteLine("-------------");
-            for (int i = 2; i >= 0; i--)
-            {
-                
-                Console.Write("| ");
-                for (int j = 0; j < 3; j++)
-                {
-                    if (board[j, i] != Team.None)
-                    {
-                        Console.ForegroundColor = color;
-                        Console.Write($"{board[j, i]}");
-                    }
-                    else Console.Write(" ");
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(" | ");
-
-                }
-                Console.WriteLine();
-                Console.WriteLine("-------------");
-            }
-        }
-
-        public void printBoard(ConsoleColor Xcolor, ConsoleColor OColor)
-        {
-            Console.WriteLine("-------------");
-            for (int i = 2; i >= 0; i--)
-            {
-                Console.Write("| ");
-                for (int j = 0; j < 3; j++)
-                {
-                    switch (board[j,i ])
-                    {
-                        case Team.None:
-                            Console.Write(" ");
-                            break;
-                        case Team.X:
-                            Console.ForegroundColor = Xcolor;
-                            Console.Write($"{board[j, i]}");
-                            
-                            break;
-                        case Team.O:
-                            Console.ForegroundColor = OColor;
-                            Console.Write($"{board[j, i]}");
-                            break;
-                    }
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(" | ");
-                }
-                Console.WriteLine();
-                Console.WriteLine("-------------");
-            }
-        }
 
         public void messager()
         {
@@ -128,13 +102,21 @@ namespace tic_tac_toe
 
 
 
-            if (board[x, y] != Team.None)
+            if (board[x, y].team != Team.None)
             {
                 return false;
             }
             else
             {
-                board[x, y] = Player;
+                board[x, y].team = Player;
+                if (Player == Team.O)
+                {
+                    board[x, y].color = oColor;
+                }
+                else
+                {
+                    board[x,y].color = xColor;
+                }
                 return true;
             }
         }
@@ -172,10 +154,10 @@ namespace tic_tac_toe
         private bool winCondition(int x, int y)
         {
             
-            Team[] row = new Team[3] { board[0, y], board[1,y], board[2,y] };
-            Team[] col = new Team[3] { board[x, 0], board[x,1], board[x,2] };
-            Team[] diag1 = new Team[3] { board[0, 0], board[1, 1], board[2, 2] };
-            Team[] diag2 = new Team[3] { board[0, 2], board[1, 1], board[2, 0] };
+            Team[] row = new Team[3] { board[0, y].team, board[1, y].team, board[2,y].team };
+            Team[] col = new Team[3] { board[x, 0].team, board[x, 1].team, board[x,2].team };
+            Team[] diag1 = new Team[3] { board[0, 0].team, board[1, 1].team, board[2, 2].team };
+            Team[] diag2 = new Team[3] { board[0, 2].team, board[1, 1].team, board[2, 0].team };
 
             if (checkRow(row) || checkCol(col) || checkDiag(diag1) || checkDiag(diag2))
             {
@@ -192,7 +174,6 @@ namespace tic_tac_toe
                     return false;
                 }
             }
-            WinFields = row;
             return true;
         }
 
@@ -228,14 +209,20 @@ namespace tic_tac_toe
             if(Player == Team.None)
             {
                 Console.WriteLine("Game over! It's a tie");
-                printBoard(ConsoleColor.Yellow);
+                for(int i = 0; i<3; i++)
+                {
+                    for(int  j = 0; j < 3; j++)
+                    {
+                        board[i, j].color = tieColor;
+                    }
+                }
 
             }
             else
             {
                 Console.WriteLine("Game over! The winner is: " + Player);
             }
-            printBoard(ConsoleColor.Green, ConsoleColor.Red);
+            printBoard();
             return;
 
         }
@@ -243,9 +230,6 @@ namespace tic_tac_toe
 
 
 
-    public enum Team
-    {
-        None, X, O
-    }
+    
 }
 
