@@ -45,12 +45,12 @@ namespace tic_tac_toe
         {
             List<Team[]> rows = generateRows(x, y, board, Player);
             List<Team[]> cols = generateCols(x, y, board, Player);
-            Team[] diag1 = generateDial(0, board);
-            Team[] diag2 = generateDial(1, board);
+            List<Team[]> diags1 = generateDial(x, y, 0, board);
+            List<Team[]> diags2 = generateDial(x, y, 1, board);
 
             for(int i = 0; i<rows.Count; i++)
             {
-                if(checkRow(rows.ElementAt(i), Player))
+                if(checkMark(rows.ElementAt(i), Player))
                 {
                     return true;
                 }
@@ -58,13 +58,31 @@ namespace tic_tac_toe
 
             for (int i = 0; i < cols.Count; i++)
             {
-                if (checkCol(cols.ElementAt(i), Player))
+                if (checkMark(cols.ElementAt(i), Player))
                 {
                     return true;
                 }
             }
 
-            return checkDiag(diag1, Player) || checkDiag(diag2, Player);
+            for (int i = 0; i < diags1.Count; i++)
+            {
+                if (checkMark(diags1.ElementAt(i), Player))
+                {
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < diags2.Count; i++)
+            {
+                if (checkMark(diags2.ElementAt(i), Player))
+                {
+                    return true;
+                }
+            }
+
+
+
+            return false;
         }
 
 
@@ -88,17 +106,7 @@ namespace tic_tac_toe
             return rowList;
         }
 
-        private static bool checkRow(Team[] row, Team Player)
-        {
-            for (int i = 0; i < row.Length; i++)
-            {
-                if (row[i] != Player)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        
 
         private static List<Team[]> generateCols(int x, int y, Board board, Team Player)
         {
@@ -123,52 +131,70 @@ namespace tic_tac_toe
             return colList;
         }
 
-
-        private static bool checkCol(Team[] col, Team Player)
+        private static List<Team[]> generateDial(int x, int y, int orient, Board board)
         {
-            for (int i = 0; i < col.Length; i++)
-            {
-                if (col[i] != Player)
-                {
-                    return false;
-                }
-            }
-
-
-            return true;
-        }
-
-        private static Team[] generateDial(int orient, Board board)
-        {
-            Team[] dial = new Team[board.GetFields().GetLength(0)];
+            List<Team[]> dials = new List<Team[]>();
             switch (orient)
             {
                 case 0:
-                    for(int i = 0; i< board.GetFields().GetLength(0); i++)
+                    
+                    for (int i = y - (board.GetWinSize() - 1);
+                        i <= y; i++)
                     {
-                        dial[i] = board.GetFields()[i,i].team;
+                        if(i>= 0 && (i + board.GetWinSize()) <= board.GetFields().GetLength(0))
+                        {
+                            if (!((x + (i - y)) < 0 ||
+                                (x + (i - y)) + board.GetWinSize()>board.GetFields().GetLength(0)))
+                            {
+                                Team[] innerTeam = new Team[board.GetWinSize()];
+                                for(int j = 0; j<board.GetWinSize(); j++)
+                                {
+                                    innerTeam[j] = board.GetFields()[(j + x + (i - y)), (i + j)].team;
+                                }
+                                dials.Add(innerTeam);
+                            }                         
+                        }
+                        
                     }
                     break;
                 case 1:
-                    for (int i = board.GetFields().GetLength(0)-1; i >= 0; i--)
+                    for (int i = y + (board.GetWinSize() - 1);
+                       i >= y; i--)
                     {
-                        dial[i] = board.GetFields()[i, board.GetFields().GetLength(0)-1-i].team;
+                        
+                        if (i < board.GetFields().GetLength(0) &&
+                            ((i+1-board.GetWinSize())>=0))
+                        {
+                            
+                            if(((x + (y - i)) >= 0)&&(((x + (y - i)) + board.GetWinSize())<=board.GetFields().GetLength(0)))
+                            {
+                                //Console.WriteLine(i);
+                                Team[] innerTeam = new Team[board.GetWinSize()];
+                                for (int j = 0; j < board.GetWinSize(); j++)
+                                {
+                                    //Console.WriteLine(" x:"+ (j + x + (y - i)) + " y:"+ (i-j));
+                                    innerTeam[j] = board.GetFields()[(j + x + (y-i)), (i-j)].team;
+                                }
+                                dials.Add(innerTeam);
+                            }
+                        }
+                        
                     }
                     break;
                 default:
                     break;
                     
             }
-            return dial;
+            return dials;
             
 
         }
 
-        private static bool checkDiag(Team[] diag, Team Player)
+        private static bool checkMark(Team[] collection, Team Player)
         {
-            for (int i = 0; i < diag.Length; i++)
+            for (int i = 0; i < collection.Length; i++)
             {
-                if (diag[i] != Player)
+                if (collection[i] != Player)
                 {
                     return false;
                 }
