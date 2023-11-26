@@ -14,6 +14,7 @@ namespace tic_tac_toe
         private int NumRounds;
         private int BoardSize;
         private int WinSize;
+        private bool shutDown;
         
         public const ConsoleColor baseColor = ConsoleColor.White;
         public const ConsoleColor tieColor = ConsoleColor.Yellow;
@@ -28,14 +29,87 @@ namespace tic_tac_toe
             return WinSize;
         }
 
-        public Game()
+        public bool getShutdown()
         {
-            BoardSize = 6;
-            WinSize = 4;
+            return shutDown;
+        }
+
+        public Game(int BoardSize, int WinSize)
+        {
+            this.BoardSize = BoardSize;
+            this.WinSize = WinSize;
             board = new Board(BoardSize, WinSize);
             Player = Team.X;
             GameOver = false;
             NumRounds = 0;
+            shutDown = false;
+        }
+
+        public Game()
+        {
+            board = new Board();
+            Player = Team.X;
+            GameOver = false;
+            NumRounds = 0;
+            shutDown = false;
+        }
+
+        public static Game gameInitializer()
+        {
+            try
+            {
+                Console.Write("Size of the board:");
+                int BoardSize = int.Parse(Console.ReadLine());
+                Console.Write("Number of sigils needed to win:");
+                int WinSize = int.Parse(Console.ReadLine());
+
+                if(BoardSize < 4 || WinSize < 4)
+                {
+                    throw new ArithmeticException("The number of marks needed for win and the size of the board" +
+                        "must be at least 4!\n");
+
+                }
+                if (WinSize >= BoardSize)
+                {
+                    throw new ArithmeticException("The number of marks needed for win must be" +
+                        "smaller than the size of the board!\n");
+                }
+
+                return new Game(BoardSize, WinSize);
+
+            }
+            catch(ArithmeticException e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e.Message);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            catch(Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Bad format! You can only use integers.\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            return gameInitializer();
+            
+        }
+
+        public void InputHandler()
+        {
+            Console.WriteLine("Press 'q' to quit, or 'c' to start the game again");
+            char Char = Console.ReadKey().KeyChar;
+            switch(Char)
+            {
+                case 'q':
+                    shutDown = true;
+                    break;
+                case 'c':
+                    shutDown= false;
+                    break;
+                default:
+                    InputHandler();
+                    break;
+            }
         }
 
         public void messager()

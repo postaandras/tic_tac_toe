@@ -3,10 +3,10 @@ namespace tic_tac_toe
 {
     internal class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.Title = "Tic Tac Toe";
-            Game game = new Game();
+            Game game = Game.gameInitializer();
             char k;
             do
             {
@@ -15,8 +15,18 @@ namespace tic_tac_toe
                 
             }
             while(k != 'q' && !game.getGameOver());
-            game.GameEnder();
-            Console.ReadKey();
+            if(game.getGameOver() )
+            {
+                game.GameEnder();
+            }
+
+            game.InputHandler();
+
+            if(game.getShutdown() ) {
+                return;
+            }
+            
+            Main(args);
             
         }
 
