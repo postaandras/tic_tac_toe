@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Media;
 
 namespace tic_tac_toe
@@ -41,24 +43,49 @@ namespace tic_tac_toe
 
         public static bool winCondition(int x, int y, Team Player, Board board)
         {
-            Team[] row = generateRow(y, board);
-            Team[] col = generateCol(x, board);
+            List<Team[]> rows = generateRows(x, y, board, Player);
+            List<Team[]> cols = generateCols(x, y, board, Player);
             Team[] diag1 = generateDial(0, board);
             Team[] diag2 = generateDial(1, board);
 
-            return (checkRow(row, Player) || checkCol(col, Player)
-                || checkDiag(diag1, Player) || checkDiag(diag2, Player));
+            for(int i = 0; i<rows.Count; i++)
+            {
+                if(checkRow(rows.ElementAt(i), Player))
+                {
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < cols.Count; i++)
+            {
+                if (checkCol(cols.ElementAt(i), Player))
+                {
+                    return true;
+                }
+            }
+
+            return checkDiag(diag1, Player) || checkDiag(diag2, Player);
         }
 
 
-        private static Team[] generateRow(int y, Board board)
+        private static List<Team[]> generateRows(int x, int y, Board board, Team Player)
         {
-            Team[] row = new Team[board.GetFields().GetLength(0)];
-            for(int i = 0; i< board.GetFields().GetLength(0); i++)
-            {
-                row[i] = board.GetFields()[i,y].team;
+            List<Team[]> rowList = new List<Team[]>();
+            for (int i = x-(board.GetWinSize()-1);
+                i<= x; i++){
+                if(i>=0 && (i+board.GetWinSize())<= board.GetFields().GetLength(0))
+                {
+                    //Console.WriteLine("i: "+i);
+                    Team[] row = new Team[board.GetWinSize()];
+                    for(int j = 0; j<row.Length; j++)
+                    {
+                        //Console.WriteLine(board.GetFields()[j+i, y].team);
+                        row[j] = board.GetFields()[j + i, y].team;
+                    }
+                    rowList.Add(row);
+                }
             }
-            return row;
+            return rowList;
         }
 
         private static bool checkRow(Team[] row, Team Player)
@@ -73,14 +100,27 @@ namespace tic_tac_toe
             return true;
         }
 
-        private static Team[] generateCol(int x, Board board)
+        private static List<Team[]> generateCols(int x, int y, Board board, Team Player)
         {
-            Team[] col = new Team[board.GetFields().GetLength(0)];
-            for (int i = 0; i < board.GetFields().GetLength(0); i++)
+            List<Team[]> colList = new List<Team[]>();
+            for (int i = y - (board.GetWinSize() - 1);
+                i <= y; i++)
             {
-                col[i] = board.GetFields()[x, i].team;
+                if (i >= 0 && (i + board.GetWinSize()) <= board.GetFields().GetLength(0))
+                {
+                    
+                    //Console.WriteLine("i: "+i);
+                    Team[] col = new Team[board.GetWinSize()];
+                    //Console.WriteLine(col.Length);
+                    for (int j = 0; j < col.Length; j++)
+                    {
+                        //Console.WriteLine(board.GetFields()[x, j+i].team);
+                        col[j] = board.GetFields()[x,j + i].team;
+                    }
+                    colList.Add(col);
+                }
             }
-            return col;
+            return colList;
         }
 
 

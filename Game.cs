@@ -13,6 +13,7 @@ namespace tic_tac_toe
         private bool GameOver;
         private int NumRounds;
         private int BoardSize;
+        private int WinSize;
         
         public const ConsoleColor baseColor = ConsoleColor.White;
         public const ConsoleColor tieColor = ConsoleColor.Yellow;
@@ -22,14 +23,19 @@ namespace tic_tac_toe
             return GameOver;
         }
 
+        public int getWinSize()
+        {
+            return WinSize;
+        }
+
         public Game()
         {
-            BoardSize = 4;
-            board = new Board(BoardSize);
+            BoardSize = 6;
+            WinSize = 4;
+            board = new Board(BoardSize, WinSize);
             Player = Team.X;
             GameOver = false;
             NumRounds = 0;
-            
         }
 
         public void messager()

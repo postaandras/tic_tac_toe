@@ -5,8 +5,15 @@ namespace tic_tac_toe
     public class Board
     {
         Field[,] fields;
+        int WinSize;
 
-        public Board(int size) {
+        public int GetWinSize()
+        {
+            return WinSize;
+        }
+
+        public Board(int size, int winSize) {
+            WinSize = winSize;
             fields = new Field[size, size];
             for (int i = 0; i < size; i++)
             {
@@ -18,6 +25,7 @@ namespace tic_tac_toe
         }
 
         public Board() {
+            WinSize = 3;
             fields = new Field[3, 3];
             for (int i = 0; i < 3; i++)
             {
